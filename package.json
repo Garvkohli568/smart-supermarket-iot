@@ -1,0 +1,17 @@
+{
+  "name": "supermarket-iot",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node api/server.js",
+    "sim": "node simulator/publish.js",
+    "load": "node simulator/load.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "mongodb": "^6.15.0",
+    "mqtt": "^5.10.4"
+  },
+  "engines": {"node": ">=20"}
+}

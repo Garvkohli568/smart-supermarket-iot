@@ -1,0 +1,41 @@
+services:
+  mqtt:
+    image: eclipse-mosquitto:2
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    ports:
+      - "127.0.0.1:1883:1883"
+    restart: unless-stopped
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+  api:
+    build: .
+    environment:
+      MONGO_URI: mongodb://mongo:27017
+      API_PORT: 3000
+      INGEST_TOKEN: ${INGEST_TOKEN:?Set INGEST_TOKEN in .env}
+      STAFF_PASSWORD: ${STAFF_PASSWORD:?Set STAFF_PASSWORD in .env}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+    restart: unless-stopped
+  nodered:
+    image: nodered/node-red:4.1.15-22
+    environment:
+      MQTT_HOST: mqtt
+      API_URL: http://api:3000/api/readings
+      INGEST_TOKEN: ${INGEST_TOKEN:?Set INGEST_TOKEN in .env}
+    volumes:
+      - ./nodered/flows.json:/data/flows.json:ro
+    ports:
+      - "127.0.0.1:1880:1880"
+    depends_on:
+      - mqtt
+      - api
+    restart: unless-stopped
+volumes:
+  mongo_data:
